@@ -15,9 +15,6 @@ jest.mock("@/lib/api", () => {
 const mockedCreateResource = createResource as jest.MockedFunction<
   typeof createResource
 >;
-const mockedGetTagCounts = getTagCounts as jest.MockedFunction<
-  typeof getTagCounts
->;
 
 const mockedGetTagCounts = getTagCounts as jest.MockedFunction<
   typeof getTagCounts
@@ -151,13 +148,16 @@ describe("ResourceForm — duplicate confirmation flow", () => {
     fireEvent.change(screen.getByPlaceholderText("Title"), {
       target: { value: "My new resource" },
     });
+
     fireEvent.change(screen.getByPlaceholderText("https://..."), {
       target: { value: "https://example.com/shared" },
     });
+
     fireEvent.change(
       screen.getByPlaceholderText("Why is this worth sharing? (optional)"),
       { target: { value: "Keep my description" } }
     );
+
     fireEvent.change(
       screen.getByPlaceholderText(
         "Tags, comma separated (e.g. javascript, beginner)"
@@ -207,7 +207,10 @@ describe("ResourceForm — tag autocomplete", () => {
     render(<ResourceForm auth={auth} />);
 
     const tagsInput = screen.getByPlaceholderText(tagsPlaceholder);
-    fireEvent.change(tagsInput, { target: { value: "java" } });
+
+    fireEvent.change(tagsInput, {
+      target: { value: "java" },
+    });
 
     const suggestion = await screen.findByRole("option", {
       name: "javascript",
@@ -216,6 +219,7 @@ describe("ResourceForm — tag autocomplete", () => {
     fireEvent.click(suggestion);
 
     expect((tagsInput as HTMLInputElement).value).toBe("javascript, ");
+
     expect(
       screen.queryByRole("option", { name: "javascript" })
     ).not.toBeInTheDocument();
@@ -225,7 +229,10 @@ describe("ResourceForm — tag autocomplete", () => {
     render(<ResourceForm auth={auth} />);
 
     const tagsInput = screen.getByPlaceholderText(tagsPlaceholder);
-    fireEvent.change(tagsInput, { target: { value: "react, test" } });
+
+    fireEvent.change(tagsInput, {
+      target: { value: "react, test" },
+    });
 
     const suggestion = await screen.findByRole("option", {
       name: "testing",

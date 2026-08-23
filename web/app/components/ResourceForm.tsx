@@ -56,32 +56,6 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
     }
 
     document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [showSuggestions]);
-
-  const [allTags, setAllTags] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const tagsFieldRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    getTagCounts()
-      .then((res) => setAllTags(Object.keys(res.tagCounts)))
-      .catch(() => setAllTags([]));
-  }, []);
-
-  useEffect(() => {
-    if (!showSuggestions) return;
-
-    function handlePointerDown(event: PointerEvent) {
-      if (
-        tagsFieldRef.current &&
-        !tagsFieldRef.current.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-      }
-    }
-
-    document.addEventListener("pointerdown", handlePointerDown);
     return () =>
       document.removeEventListener("pointerdown", handlePointerDown);
   }, [showSuggestions]);
@@ -123,7 +97,10 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
         });
         return;
       }
-      setError(err instanceof Error ? err.message : "Something went wrong");
+
+      setError(
+        err instanceof Error ? err.message : "Something went wrong"
+      );
     }
   }
 
@@ -132,16 +109,21 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
   }
 
   const tagParts = tagsInput.split(",");
-  const currentTag = tagParts[tagParts.length - 1].trim().toLowerCase();
+
+  const currentTag = tagParts[tagParts.length - 1]
+    .trim()
+    .toLowerCase();
+
   const addedTags = tagParts
     .slice(0, -1)
     .map((tag) => tag.trim().toLowerCase());
+
   const suggestions = currentTag
     ? allTags.filter(
         (tag) =>
           tag.toLowerCase().includes(currentTag) &&
           tag.toLowerCase() !== currentTag &&
-          !addedTags.includes(tag.toLowerCase()),
+          !addedTags.includes(tag.toLowerCase())
       )
     : [];
 
@@ -150,6 +132,7 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
       .slice(0, -1)
       .map((part) => part.trim())
       .filter(Boolean);
+
     setTagsInput([...kept, tag].join(", ") + ", ");
     setShowSuggestions(false);
   }
@@ -162,8 +145,11 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
 
     try {
       const { resource } = await createResource(
-        { ...pendingDuplicate.input, confirmDuplicate: true },
-        token,
+        {
+          ...pendingDuplicate.input,
+          confirmDuplicate: true,
+        },
+        token
       );
 
       onPosted?.(resource);
@@ -174,35 +160,12 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
       setTagsInput("");
       setPendingDuplicate(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(
+        err instanceof Error ? err.message : "Something went wrong"
+      );
     } finally {
       setIsConfirming(false);
     }
-  }
-
-  const tagParts = tagsInput.split(",");
-  const currentTag = tagParts[tagParts.length - 1].trim().toLowerCase();
-  const addedTags = tagParts
-    .slice(0, -1)
-    .map((tag) => tag.trim().toLowerCase());
-
-  const suggestions = currentTag
-    ? allTags.filter(
-        (tag) =>
-          tag.toLowerCase().includes(currentTag) &&
-          tag.toLowerCase() !== currentTag &&
-          !addedTags.includes(tag.toLowerCase()),
-      )
-    : [];
-
-  function selectSuggestion(tag: string) {
-    const kept = tagParts
-      .slice(0, -1)
-      .map((part) => part.trim())
-      .filter(Boolean);
-
-    setTagsInput([...kept, tag].join(", ") + ", ");
-    setShowSuggestions(false);
   }
 
   return (
@@ -232,7 +195,10 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
             onChange={(e) => setDescription(e.target.value)}
             maxLength={1000}
           />
-          <span className="char-count">{description.length}/1000</span>
+
+          <span className="char-count">
+            {description.length}/1000
+          </span>
         </div>
 
         <div className="tags-field" ref={tagsFieldRef}>
@@ -267,6 +233,7 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
         </div>
 
         <button type="submit">Share resource</button>
+
         {error && <p className="error">{error}</p>}
       </form>
 
@@ -277,7 +244,8 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
           onConfirm={confirmAnyway}
         >
           <p className="modal-message">
-            A resource titled <strong>{pendingDuplicate.existingTitle}</strong>{" "}
+            A resource titled{" "}
+            <strong>{pendingDuplicate.existingTitle}</strong>{" "}
             already uses this URL. Do you want to add your resource anyway?
           </p>
 
@@ -298,8 +266,15 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
               onClick={confirmAnyway}
               disabled={isConfirming}
             >
-              <span>{isConfirming ? "Adding..." : "Add anyway"}</span>
-              <CornerDownLeft size={17} strokeWidth={2} aria-hidden="true" />
+              <span>
+                {isConfirming ? "Adding..." : "Add anyway"}
+              </span>
+
+              <CornerDownLeft
+                size={17}
+                strokeWidth={2}
+                aria-hidden="true"
+              />
             </button>
           </div>
         </Modal>
