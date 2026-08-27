@@ -38,10 +38,12 @@ export default function ResourceForm({ auth, onPosted }: ResourceFormProps) {
   const tagsFieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getTagCounts()
-      .then((res) => setAllTags(Object.keys(res.tagCounts)))
-      .catch(() => setAllTags([]));
-  }, []);
+  if (!auth) return;
+
+  getTagCounts()
+    .then((res) => setAllTags(Object.keys(res.tagCounts)))
+    .catch(() => setAllTags([]));
+}, [auth]);
 
   useEffect(() => {
     if (!showSuggestions) return;
